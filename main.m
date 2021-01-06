@@ -1,30 +1,29 @@
 clear variables; clc;
-Re = 6371*1000; %радиус Земли
-h = 400*1000; %высота над уровнем моря
-mu = 398600e+9;           %гравитационная постоянная Земли
+Re = 6371*1000; %earth radius
+h = 400*1000; %height above sea level
+mu = 398600e+9; %gravitational constant
 %%
-%элементы орбиты
-sma = h+Re; %большая полуось орбиты
-ecc = 0.0004; %эксцентриситет
-inc = 51.64*pi/180; %наклонение
-raan = 10.752*pi/180; %долгота восходящего узла
-aop = 75.14*pi/180; %аргумент перигея
-ta = 115.95*pi/180; %истинная аномалия
-w0 = sqrt(mu/(sma)^3); %среднее движение
+%orbital elemets
+sma = h+Re; %semimajor axis
+ecc = 0.0004; %eccentricity
+inc = 51.64*pi/180; %inclination
+raan = 10.752*pi/180; %right ascension of the ascending node
+aop = 75.14*pi/180; %argument of perigee
+w0 = sqrt(mu/(sma)^3); %mean motion
 %%
 global orbit_vec
-    orbit_vec = [sma ecc inc raan aop ta w0]; %вектор элементов орбиты
+    orbit_vec = [sma ecc inc raan aop ta w0];
 %%
-%интегратор
-h = 0.001;%шаг по сетке
+%integrator
+h = 0.001;%step
 N = 2;
 t = 0:h:N;
 x = zeros(length(t));
 y = zeros(7,length(t));
-%%начальные условия
+%%initial conditions
 y0 = [1 0 0 0 0 0 0]'; x0 = 0;
 y(:,1) = y0; x(1) = x0;
-%%интегрируем
+%%integrating...
 [x,y] = ode4(@motionEquations,h,[0,N],[x0;y0]);
 for i = 1:length(t)
     [a(i) b(i) c(i)] = quat2angle(y(1:4,i)','XYX');
