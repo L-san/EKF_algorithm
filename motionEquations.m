@@ -12,7 +12,8 @@ w_y = attitude(6);
 w_z = attitude(7);
 
 %mean motion
-w0_b = [0; orbit_vec(7); 0];    
+DCM = quat2dcm(attitude(1:4)');
+w0_b = DCM*[0; orbit_vec(7); 0];    
 w0_b_x = w0_b(1);
 w0_b_y = w0_b(2);
 w0_b_z = w0_b(3);

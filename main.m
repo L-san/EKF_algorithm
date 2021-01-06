@@ -9,6 +9,7 @@ ecc = 0.0004; %eccentricity
 inc = 51.64*pi/180; %inclination
 raan = 10.752*pi/180; %right ascension of the ascending node
 aop = 75.14*pi/180; %argument of perigee
+ta = 115.95*pi/180; %truth anomaly
 w0 = sqrt(mu/(sma)^3); %mean motion
 %%
 global orbit_vec
@@ -16,7 +17,7 @@ global orbit_vec
 %%
 %integrator
 h = 0.001;%step
-N = 2;
+N = 10;
 t = 0:h:N;
 x = zeros(length(t));
 y = zeros(7,length(t));
