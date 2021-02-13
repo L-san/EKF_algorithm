@@ -1,6 +1,6 @@
 %orbit_vec = [sma ecc inc raan aop ta w0]; %orbital elements vector
 function attitudeVector = motionEquations(t,attitude)
-global orbit_vec
+global orbit_vec sattelite
 %quaternion and angular velocity in the body system
 q0 = attitude(1);
 q1 = attitude(2);
@@ -10,6 +10,10 @@ q3 = attitude(4);
 w_x = attitude(5);
 w_y = attitude(6);
 w_z = attitude(7);
+
+Ix = sattelite(4);
+Iy = sattelite(5);
+Iz = sattelite(6);
 
 %mean motion
 DCM = quat2dcm(attitude(1:4)');
@@ -29,9 +33,9 @@ q_dot_1 =  0.5*(q0*w_orb_x+q2*w_orb_z-q3*w_orb_y);
 q_dot_2 =  0.5*(q0*w_orb_y +q3*w_orb_x-q1*w_orb_z);
 q_dot_3 =  0.5*(q0*w_orb_z +q1*w_orb_y-q2*w_orb_x);
 
-M = calculateTorques();%external torques
+M = calculateTorques(attitude);%external torques
 M_x = M(1); M_y = M(2); M_z = M(3);
-Ix = 0.01; Iy = 0.01; Iz = 0.02;
+
 %Eulers eq-s
 w_dot_x = (M_x-(Iz-Iy)*w_y*w_z)/Ix;
 w_dot_y = (M_y-(Ix-Iz)*w_z*w_x)/Iy;
