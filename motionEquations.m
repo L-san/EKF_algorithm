@@ -1,9 +1,11 @@
 %orbit_vec = [sma ecc inc raan aop ta w0]; %orbital elements vector
 function attitudeVector = motionEquations(t,attitude)
-global orbit_vec satellite
+global orbit_vec satellite mu
 %quaternion and angular velocity in the body system
 q = attitude(1:4);
 w_b = attitude(5:7);
+r = attitude(8:10);
+V = attitude(11:13);
 
 %mean motion
 Aorb2b = quat2dcm(attitude(1:4)');
@@ -22,5 +24,8 @@ M = calculateTorques(attitude);
 %Eulers eq-s
 w_dot = satellite.I \ (M - cross(w_orb, satellite.I * w_orb));
 
-attitudeVector = [q_dot; w_dot];
+%Orbital motion
+k = -mu/norm(r)^3;
+
+attitudeVector = [q_dot; w_dot; V; k*r];
 end

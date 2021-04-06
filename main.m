@@ -21,17 +21,26 @@ global satellite
        satellite.ra = [0; 0.001; 0]; % center of mass shift
        satellite.I = diag([0.01, 0.01, 0.02]);
 %%
+statvec = kepel_statvec([orbit_vec.sma;
+                         orbit_vec.ecc;
+                         orbit_vec.inc;
+                         orbit_vec.raan;
+                         orbit_vec.aop;
+                         orbit_vec.ta]);
 %integrator
 h = 1;%step
-N = 1000;
-t = 0:h:N;
+N = 1;
+T = 2*pi*sqrt(orbit_vec.sma^3/mu);
+t = 0:h:N*T;
 x = zeros(length(t));
-y = zeros(7,length(t));
+y = zeros(13,length(t));
 %%initial conditions
-y0 = [1 0 0 0 0 0 0]'; x0 = 0;
+y0 = [1 0 0 0 0 0 0 statvec]'; x0 = 0;
 y(:,1) = y0; x(1) = x0;
 %%integrating...
-[x,y] = ode4(@motionEquations,h,[0,N],[x0;y0]);
+%%kalmaaaan F
+
+[x,y] = ode4(@motionEquations,h,[0,N*T],[x0;y0]);
 for i = 1:length(t)
     [a(i) b(i) c(i)] = quat2angle(y(1:4,i)','XYX');
     q_norm(i) = sqrt(y(1,i)^2+y(2,i)^2+y(3,i)^2+y(4,i)^2);
@@ -46,3 +55,6 @@ subplot(2,3,5); plot(x, y(6,:)); xlabel("Time,s"); ylabel("w_y, rad/s"); grid;
 subplot(2,3,6); plot(x, y(7,:)); xlabel("Time,s"); ylabel("w_z, rad/s"); grid;
 
 figure; plot(x,q_norm); xlabel("Time,s"); ylabel("quaternion norm"); grid;
+
+figure;
+plot3(y(8,:),y(9,:),y(10,:)); grid;
