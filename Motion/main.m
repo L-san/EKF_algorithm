@@ -58,3 +58,4 @@ figure; plot(x,q_norm); xlabel("Time,s"); ylabel("quaternion norm"); grid;
 
 figure;
 plot3(y(8,:),y(9,:),y(10,:)); grid;
+save('data.mat','x','y','h');

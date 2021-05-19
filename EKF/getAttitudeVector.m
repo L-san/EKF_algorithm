@@ -9,5 +9,5 @@ w = attitude(5:7,:);
 q = q+q_dot*dt;
 w = w+w_dot*dt;
 
-x = [q 0 w];
+x = [q; w];
 end
