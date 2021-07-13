@@ -15,5 +15,4 @@ Mg = 3*orbit_vec.w0^2*cross(e_B,satellite.I*e_B);
 %%all moments
 %M = Ma+Mg;
 M = Mg;
-
 end
