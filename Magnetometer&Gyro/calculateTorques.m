@@ -13,6 +13,6 @@ Ma = -0.5*ro* satellite.c0* satellite.Sm* norm(V)^2*cross(satellite.ra,e_V);
 e_B = Aorb2b*[0;0;1];
 Mg = 3*orbit_vec.w0^2*cross(e_B,satellite.I*e_B);
 %%all moments
-%M = Ma+Mg;
-M = Mg;
+M = Ma+Mg;
+%M = Mg;
 end
