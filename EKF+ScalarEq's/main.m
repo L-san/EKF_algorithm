@@ -52,11 +52,11 @@ for j = 1:length(y)
     V = y(11:13,j);
     r = y(8:10,j);
     Ain2orb = inv([V/norm(V), cross(r,V)/norm(cross(r,V)), r/norm(r)]);
-    B_orb = Ain2orb*B_I(:,j);
-    B_b(:,j) = Aorb2b(:,:,j)*B_orb;
+%     B_orb = Ain2orb*B_I(:,j);
+%     B_b(:,j) = Aorb2b(:,:,j)*B_orb;
 end
 
-B_b = awgn(B_b, 40,'measured');
+% B_b = awgn(B_b, 40,'measured');
 w = awgn(y(5:7,:), 40,'measured');
 
 %--------------------------------------------------------------------------
@@ -78,10 +78,10 @@ w = awgn(y(5:7,:), 40,'measured');
 % figure;
 % plot3(y(8,:),y(9,:),y(10,:)); grid;
 
-figure;
-subplot(1,3,1); plot(x,B_b(1,:)*1e6);xlabel("¬рем€, с"); ylabel("B_x, мк“л");grid;
-subplot(1,3,2); plot(x,B_b(2,:)*1e6);xlabel("¬рем€, с"); ylabel("B_y, мк“л");grid;
-subplot(1,3,3); plot(x,B_b(3,:)*1e6);xlabel("¬рем€, с"); ylabel("B_z, мк“л");grid;
+% figure;
+% subplot(1,3,1); plot(x,B_b(1,:)*1e6);xlabel("¬рем€, с"); ylabel("B_x, мк“л");grid;
+% subplot(1,3,2); plot(x,B_b(2,:)*1e6);xlabel("¬рем€, с"); ylabel("B_y, мк“л");grid;
+% subplot(1,3,3); plot(x,B_b(3,:)*1e6);xlabel("¬рем€, с"); ylabel("B_z, мк“л");grid;
 figure;
 subplot(1,3,1); plot(x, w(1,:)); xlabel("¬рем€, с"); ylabel("w_x,  рад/c"); grid;
 subplot(1,3,2); plot(x, w(2,:)); xlabel("¬рем€, с"); ylabel("w_y,  рад/c"); grid;

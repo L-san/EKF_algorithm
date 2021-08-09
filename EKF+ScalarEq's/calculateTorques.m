@@ -30,7 +30,6 @@ Ma = [Max; May; Maz];
 %%
 %gravity
 e_Bx =  Aorb2b13; e_By =  Aorb2b23; e_Bz =  Aorb2b33; 
-e_B = [e_Bx; e_By; e_Bz];
 Mgx = 3*orbit_vec.w0^2*(Iz-Iy)*e_By*e_Bz;
 Mgy = 3*orbit_vec.w0^2*(Ix-Iz)*e_Bx*e_Bz;
 Mgz = 3*orbit_vec.w0^2*(Iy-Ix)*e_By*e_Bx;
