@@ -23,39 +23,92 @@ global satellite
        satellite.I = diag([0.01, 0.01, 0.02]);
 %%
 R = 100;
-Q = 0.1;
+Q = 0;
 
 q = y(1:4,:);
 w = y(5:7,:);
 r = y(8:10,:);
 V = y(11:13,:);
 dt = h;
+
 sensor_data = [B_b; wb];
 x_hat = zeros(7,length(x));
-h = zeros(7,length(x));
+
+Jfx = zeros(7,length(x));
+Jhx = zeros(7,length(x));
+fx = zeros(7,length(x));
+hx = zeros(7,length(x));
 P = eye(7);
 x_hat(:,1) = [q(:,1); w(:,1)];
-for i = 1:length(x)
+
+for i = 2:length(x)
     
-    qw = [q(:,i); w(:,i)];
-    %
-    Ain2orb = in2orb(r(:,i),V(:,i));
-    B_I = magneticField(r(:,i));
+    Ain2orb = in2orb(r(:,i-1),V(:,i-1));
+    B_I = magneticField(r(:,i-1));
     Borb = Ain2orb*B_I;
     %
-    JF = stateTransitionMatrix(qw,dt);
-    JH = observationMatrix(qw, Borb);
-    f = getAttitudeVector([qw; r(:,i); V(:,i)], dt);
-    h = getHiddenState([qw; r(:,i); V(:,i)], Borb);
+    JF = stateTransitionMatrix([x_hat(:,i-1); r(:,i-1); V(:,i-1)],dt);
+    JH = observationMatrix(x_hat(:,i-1), Borb);
+    f = getAttitudeVector([x_hat(:,i-1); r(:,i-1); V(:,i-1)], dt);
+    h = getHiddenState([x_hat(:,i-1); r(:,i-1); V(:,i-1)], Borb);
     
-    z = [0;sensor_data(:,i)];
-    
+    Jfx(:,i)= JF*x_hat(:,i-1);
+    Jhx(:,i)= JH*x_hat(:,i-1);
+    fx(:,i) = f;
+    hx(:,i) = h;
+    z = sensor_data(:,i);
     [x_hat(:,i), P] = kalmanReal(R, Q, z, P, JF, JH, h, f);
 end
+
+% figure;
+% subplot(2,2,1); plot(x,zeros(1,length(x)), x, hx(1,:)); grid; legend("raw","filtered");
+% subplot(2,2,2); plot(x,sensor_data(1,:), x, hx(2,:)); grid; legend("raw","filtered");
+% subplot(2,2,3); plot(x,sensor_data(2,:), x, hx(3,:)); grid; legend("raw","filtered");
+% subplot(2,2,4); plot(x,sensor_data(3,:), x, hx(4,:)); grid; legend("raw","filtered");
+% figure;
+% subplot(1,3,1); plot(x,sensor_data(4,:), x, hx(5,:)); grid; legend("raw","filtered");
+% subplot(1,3,2); plot(x,sensor_data(5,:), x, hx(6,:)); grid; legend("raw","filtered");
+% subplot(1,3,3); plot(x,sensor_data(6,:), x, hx(7,:)); grid; legend("raw","filtered");
+
+% 
+% figure;
+% subplot(2,2,1); plot(x,fx(1,:), x, Jfx(1,:)); grid; legend("raw","filtered");
+% subplot(2,2,2); plot(x,fx(2,:), x, Jfx(2,:)); grid; legend("raw","filtered");
+% subplot(2,2,3); plot(x,fx(3,:), x, Jfx(3,:)); grid; legend("raw","filtered");
+% subplot(2,2,4); plot(x,fx(4,:), x, Jfx(4,:)); grid; legend("raw","filtered");
+% figure;
+% subplot(1,3,1); plot(x,fx(5,:), x, Jfx(5,:)); grid; legend("raw","filtered");
+% subplot(1,3,2); plot(x,fx(6,:), x, Jfx(6,:)); grid; legend("raw","filtered");
+% subplot(1,3,3); plot(x,fx(7,:), x, Jfx(7,:)); grid; legend("raw","filtered");
+
+% figure;
+% subplot(2,2,1); plot(x,hx(1,:), x, Jhx(1,:)); grid; legend("raw","filtered");
+% subplot(2,2,2); plot(x,hx(2,:), x, Jhx(2,:)); grid; legend("raw","filtered");
+% subplot(2,2,3); plot(x,hx(3,:), x, Jhx(3,:)); grid; legend("raw","filtered");
+% subplot(2,2,4); plot(x,hx(4,:), x, Jhx(4,:)); grid; legend("raw","filtered");
+% 
+% figure;
+% subplot(1,3,1); plot(x,hx(5,:), x, Jhx(5,:)); grid; legend("raw","filtered");
+% subplot(1,3,2); plot(x,hx(6,:), x, Jhx(6,:)); grid; legend("raw","filtered");
+% subplot(1,3,3); plot(x,hx(7,:), x, Jhx(7,:)); grid; legend("raw","filtered");
+% 
+
+% figure;
+% subplot(1,3,1); plot(x,wb(1,:), x, Jhx(5,:)); grid; legend("raw","filtered");
+% subplot(1,3,2); plot(x,wb(2,:), x, Jhx(6,:)); grid; legend("raw","filtered");
+% subplot(1,3,3); plot(x,wb(3,:), x, Jhx(7,:)); grid; legend("raw","filtered");
+% 
+% figure;
+% subplot(1,3,1); plot(x,wb(1,:), x, hx(5,:)); grid; legend("raw","filtered");
+% subplot(1,3,2); plot(x,wb(2,:), x, hx(6,:)); grid; legend("raw","filtered");
+% subplot(1,3,3); plot(x,wb(3,:), x, hx(7,:)); grid; legend("raw","filtered");
+
+
+
 figure;
-subplot(1,3,1); plot(x, wb(1,:), x, x_hat(5,:)); xlabel("Время, с"); ylabel("w_x,  рад/c"); grid; legend("raw","filtered");
-subplot(1,3,2); plot(x, wb(2,:), x, x_hat(5,:)); xlabel("Время, с"); ylabel("w_y,  рад/c"); grid; legend("raw","filtered");
-subplot(1,3,3); plot(x, wb(3,:), x, x_hat(7,:)); xlabel("Время, с"); ylabel("w_z,  рад/c"); grid; legend("raw","filtered");
+subplot(1,3,1); plot(x, y(5,:), x, x_hat(5,:)); xlabel("Время, с"); ylabel("w_x,  рад/c"); grid; legend("raw","filtered");
+subplot(1,3,2); plot(x, y(6,:), x, x_hat(5,:)); xlabel("Время, с"); ylabel("w_y,  рад/c"); grid; legend("raw","filtered");
+subplot(1,3,3); plot(x, y(7,:), x, x_hat(7,:)); xlabel("Время, с"); ylabel("w_z,  рад/c"); grid; legend("raw","filtered");
 
 figure;
 subplot(2,2,1); plot(x,y(1,:), x, x_hat(1,:)); grid; legend("raw","filtered");

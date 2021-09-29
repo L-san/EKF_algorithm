@@ -35,7 +35,7 @@ t = 0:h:N*T;
 x = zeros(length(t));
 y = zeros(13,length(t));
 %%initial conditions
-y0 = [1 0 0 0 0 0 0 statvec]'; x0 = 0;
+y0 = [1 0 0 0 0.001 0 0 statvec]'; x0 = 0;
 y(:,1) = y0; x(1) = x0;
 %%integrating...
 %%kalmaaaan F
@@ -46,14 +46,13 @@ for i = 1:length(t)
     q_norm(i) = sqrt(y(1,i)^2+y(2,i)^2+y(3,i)^2+y(4,i)^2);
 end
 
-Aorb2b = quat2dcm(y(1:4,:)');
 for j = 1:length(y)
-    B_I = magneticField(y(8:10,j));
     V = y(11:13,j);
     r = y(8:10,j);
-    Ain2orb = inv([V/norm(V), cross(r,V)/norm(cross(r,V)), r/norm(r)]);
-    B_orb = Ain2orb*B_I;
-    B_b(:,j) = Aorb2b(:,:,j)*B_orb;
+    Ain2orb = in2orb(r,V);
+    B_I = magneticField(r);
+    Borb = Ain2orb*B_I;
+    B_b(:,j) = quat_mult(quat_mult(y(1:4,j),[0; Borb]),quat_conj(y(1:4,j)));
 end
 
 B_b = awgn(B_b, 40,'measured');

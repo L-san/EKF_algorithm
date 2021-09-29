@@ -36,7 +36,6 @@ q_dot = [q_dot_0; q_dot_1; q_dot_2; q_dot_3];
 %external torques
 M = calculateTorques(attitude);
 Mx = M(1); My = M(2); Mz = M(3);
-
 %Eulers eq-s
 w_dot_x = Mx/Ix + (Iy - Iz)/Ix * w_by*w_bz;
 w_dot_y = My/Iy + (Iz - Ix)/Iy * w_bx*w_bz;

@@ -14,19 +14,19 @@ Ix = satellite.I(1,1); Iy = satellite.I(2,2); Iz = satellite.I(3,3);
  Aorb2b33 = Aorb2b(3,3);
 %%
 %aerodynamics
-ro = Density(orbit_vec.h);
-V = attitude(11:13);%circular velocity
+r = attitude(8:10);
+V = attitude(11:13);
+ro = Density(norm(r)-orbit_vec.Re);
 Vx = V(1); Vy = V(2); Vz = V(3);
-xa = satellite.ra(1); ya = satellite.ra(2); za = satellite.ra(3);
+x = satellite.ra(1); y = satellite.ra(2); z = satellite.ra(3);
 Vn = sqrt(Vx^2+Vy^2+Vz^2);
 e_Vx = (Aorb2b11*Vx + Aorb2b12*Vy + Aorb2b13*Vz)/Vn; 
 e_Vy = (Aorb2b21*Vx + Aorb2b22*Vy + Aorb2b23*Vz)/Vn; 
 e_Vz = (Aorb2b31*Vx + Aorb2b32*Vy + Aorb2b33*Vz)/Vn; 
 ka =  -0.5*ro* satellite.c0* satellite.Sm*Vn^2;
-Max =ka*(ya*e_Vz-za*e_Vy);
-May =ka*(za*e_Vx-xa*e_Vz);
-Maz =ka*(xa*e_Vy-ya*e_Vx);
-Ma = [Max; May; Maz];
+Max =ka*(y*e_Vz-z*e_Vy);
+May =ka*(z*e_Vx-x*e_Vz);
+Maz =ka*(x*e_Vy-y*e_Vx);
 %%
 %gravity
 e_Bx =  Aorb2b13; e_By =  Aorb2b23; e_Bz =  Aorb2b33; 
