@@ -47,9 +47,9 @@ Ma35 = 0;
 Ma36 = 0;
 Ma37 = 0;
 
-Ma = [Ma11 Ma12 Ma13 Ma14 Ma15 Ma16 Ma17;
-     Ma21 Ma22 Ma23 Ma24 Ma25 Ma26 Ma27;
-     Ma31 Ma32 Ma33 Ma34 Ma35 Ma36 Ma37];
+Ma = [Ma11/Ix Ma12/Ix Ma13/Ix Ma14/Ix Ma15 Ma16 Ma17;
+     Ma21/Iy Ma22/Iy Ma23/Iy Ma24/Iy Ma25 Ma26 Ma27;
+     Ma31/Iz Ma32/Iz Ma33/Iz Ma34/Iz Ma35 Ma36 Ma37];
  
 Mg11 = 6*(-Iy+Iz)*q0*(q0*q1+q2*q3)*w0^2+3*(-Iy+Iz)*q1*(q0^2-q1^2-q2^2+q3^2)*w0^2;
 Mg12 = -6*(-Iy+Iz)*q1*(q0*q1+q2*q3)*w0^2+3*(-Iy+Iz)*q0*(q0^2-q1^2-q2^2+q3^2)*w0^2;
@@ -75,9 +75,9 @@ Mg35 = 0;
 Mg36 = 0;
 Mg37 = 0;
 
-Mg = [Mg11 Mg12 Mg13 Mg14 Mg15 Mg16 Mg17;
-     Mg21 Mg22 Mg23 Mg24 Mg25 Mg26 Mg27;
-     Mg31 Mg32 Mg33 Mg34 Mg35 Mg36 Mg37];
+Mg = [Mg11/Ix Mg12/Ix Mg13/Ix Mg14/Ix Mg15 Mg16 Mg17;
+     Mg21/Iy Mg22/Iy Mg23/Iy Mg24/Iy Mg25 Mg26 Mg27;
+     Mg31/Iz Mg32/Iz Mg33/Iz Mg34/Iz Mg35 Mg36 Mg37];
 
 M = Mg+Ma;
 F2 = F1(5:7,:)+M;
