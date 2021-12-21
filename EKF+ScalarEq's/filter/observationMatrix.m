@@ -4,19 +4,19 @@ w0 = orbit_vec.w0;
 q0 = attitude(1); q1 = attitude(2); q2 = attitude(3); q3 = attitude(4);
 BAx = Borb(1); BAy = Borb(2); BAz = Borb(3);
 
-E11 = BAx*q0+BAz*q2-BAy*q3;
+E11 = BAx*q0-BAz*q2+BAy*q3;
 E12 = BAx*q1+BAy*q2+BAz*q3;
-E13 = BAz*q0+BAy*q1-BAx*q2;
-E14 = -BAy*q0+BAz*q1-BAx*q3;  
+E13 = -BAz*q0+BAy*q1-BAx*q2;
+E14 = BAy*q0+BAz*q1-BAx*q3;  
 
-E21 = BAy*q0+-BAz*q1+BAx*q3;
-E22 = -BAy*q1-BAz*q0+BAx*q2;
+E21 = BAy*q0+BAz*q1-BAx*q3;
+E22 = -BAy*q1+BAz*q0+BAx*q2;
 E23 = BAy*q2+BAx*q1+BAz*q3;
-E24 = BAx*q0+BAz*q2-BAy*q3; 
+E24 = -BAx*q0+BAz*q2-BAy*q3; 
 
-E31 = BAz*q0+BAy*q1-BAx*q2;
-E32 = -BAz*q1+BAy*q0+BAx*q3;
-E33 = -BAz*q2-BAx*q0+BAy*q3;
+E31 = BAz*q0-BAy*q1+BAx*q2;
+E32 = -BAz*q1-BAy*q0+BAx*q3;
+E33 = -BAz*q2+BAx*q0+BAy*q3;
 E34 = BAx*q1+BAy*q2+BAz*q3; 
 
 
@@ -47,12 +47,39 @@ F = zeros(4,3);
 % G21 G22 G23 G24;
 % G31 G32 G33 G34];
 
-G = zeros (3,4);
+%G = zeros (3,4);
 
-H = eye(3);
+%H = eye(3);
+w11=q3*w0;
+w12=q2*w0;
+w13=q1*w0;
+w14=q0*w0;
+w15=1;
+w16=0;
+w17=0;
+
+w21=q0*w0;
+w22=-q1*w0;
+w23=q2*w0;
+w24=-q3*w0;
+w25=0;
+w26=1;
+w27=0;
+
+w31=-q1*w0;
+w32=-q0*w0;
+w33=q3*w0;
+w34=q2*w0;
+w35=0;
+w36=0;
+w37=1;
+
+W = [w11 w12 w13 w14 w15 w16 w17;
+    w21 w22 w23 w24 w25 w26 w27;
+    w31 w32 w33 w34 w35 w36 w37];
 
 JH = [E, F;
-      G, H];
+      W];
 
 end
 

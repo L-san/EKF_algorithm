@@ -46,5 +46,5 @@ w_dot = [w_dot_x; w_dot_y; w_dot_z];
 %Orbital motion
 k = -mu/norm(r)^3;
 
-attitudeVector = [q_dot; w_dot; V; k*r];
+attitudeVector = [q_dot; w_dot; V; k*r; ];
 end
