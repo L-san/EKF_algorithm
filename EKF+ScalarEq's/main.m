@@ -56,11 +56,11 @@ for j = 1:length(y)
     %B_b(:,j) = quat_mult(quat_mult(y(1:4,j),[0; Borb]),quat_conj(y(1:4,j)));
     B_b(:,j) = DCM*Borb;
     w00 = [0;  orbit_vec.w0; 0];
-    w_b(:,j) = y(5:7,j)+DCM*w00;
+    %w_b(:,j) = y(5:7,j)+DCM*w00;
 end
 
 B_b = awgn(B_b, 40,'measured');
-wb = awgn(w_b, 40,'measured');
+wb = awgn(y(5:7,:), 40,'measured');
 
 %--------------------------------------------------------------------------
 
@@ -81,13 +81,13 @@ wb = awgn(w_b, 40,'measured');
 % figure;
 % plot3(y(8,:),y(9,:),y(10,:)); grid;
 % 
-% figure;
-% subplot(1,3,1); plot(x,B_b(2,:)*1e6);xlabel("¬рем€, с"); ylabel("B_x, мк“л");grid;
-% subplot(1,3,2); plot(x,B_b(3,:)*1e6);xlabel("¬рем€, с"); ylabel("B_y, мк“л");grid;
-% subplot(1,3,3); plot(x,B_b(4,:)*1e6);xlabel("¬рем€, с"); ylabel("B_z, мк“л");grid;
 figure;
-subplot(1,3,1); plot(x, wb(1,:)); xlabel("¬рем€, с"); ylabel("w_x,  рад/c"); grid;
-subplot(1,3,2); plot(x, wb(2,:)); xlabel("¬рем€, с"); ylabel("w_y,  рад/c"); grid;
-subplot(1,3,3); plot(x, wb(3,:)); xlabel("¬рем€, с"); ylabel("w_z,  рад/c"); grid;
+subplot(1,3,1); plot(x,B_b(1,:)*1e6);xlabel("¬рем€, с"); ylabel("B_x, мк“л");grid;
+subplot(1,3,2); plot(x,B_b(2,:)*1e6);xlabel("¬рем€, с"); ylabel("B_y, мк“л");grid;
+subplot(1,3,3); plot(x,B_b(3,:)*1e6);xlabel("¬рем€, с"); ylabel("B_z, мк“л");grid;
+figure;
+subplot(1,3,1); plot(x, wb(1,:)*180/pi); xlabel("¬рем€, с"); ylabel("w_x,  градусы/c"); grid;
+subplot(1,3,2); plot(x, wb(2,:)*180/pi); xlabel("¬рем€, с"); ylabel("w_y,  градусы/c"); grid;
+subplot(1,3,3); plot(x, wb(3,:)*180/pi); xlabel("¬рем€, с"); ylabel("w_z,  градусы/c"); grid;
 
 save('data.mat','x','y','h','B_b','wb');

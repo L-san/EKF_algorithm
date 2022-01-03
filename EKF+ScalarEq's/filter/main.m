@@ -68,29 +68,28 @@ subplot(2,4,4); plot(x,fx(4,:), x, Jfx(4,:), x, y(4,:)); grid; legend("fx","Jfx"
 subplot(2,4,5); plot(x,fx(5,:), x, Jfx(5,:), x, y(5,:)); grid; legend("fx","Jfx","y");
 subplot(2,4,6); plot(x,fx(6,:), x, Jfx(6,:), x, y(6,:)); grid; legend("fx","Jfx","y");
 subplot(2,4,7); plot(x,fx(7,:), x, Jfx(7,:), x, y(7,:)); grid; legend("fx","Jfx","y");
-% 
-% figure;
-% title("hx, Jhx, z");
-% subplot(2,4,1); plot(x,hx(1,:), x, Jhx(1,:), x, zeros(1,length(sensor_data(1,:)))); legend("hx","Jhx","z"); grid; 
-% subplot(2,4,2); plot(x,hx(2,:), x, Jhx(2,:), x, sensor_data(1,:)); legend("hx","Jhx","z"); grid;
-% subplot(2,4,3); plot(x,hx(3,:), x, Jhx(3,:), x, sensor_data(2,:)); legend("hx","Jhx","z"); grid; 
-% subplot(2,4,4); plot(x,hx(4,:), x, Jhx(4,:), x, sensor_data(3,:)); legend("hx","Jhx","z"); grid; 
-% subplot(2,4,5); plot(x,hx(5,:), x, Jhx(5,:), x, sensor_data(4,:)); grid; legend("hx","Jhx","z");
-% subplot(2,4,6); plot(x,hx(6,:), x, Jhx(6,:), x, sensor_data(5,:)); grid; legend("hx","Jhx","z");
-% subplot(2,4,7); plot(x,hx(7,:), x, Jhx(7,:), x, sensor_data(6,:)); grid; legend("hx","Jhx","z");
+
+figure;
+title("hx, Jhx, z");
+subplot(2,4,1); plot(x,hx(1,:), x, Jhx(1,:), x, zeros(1,length(sensor_data(1,:)))); legend("hx","Jhx","z"); grid; 
+subplot(2,4,2); plot(x,hx(2,:), x, Jhx(2,:), x, sensor_data(1,:)); legend("hx","Jhx","z"); grid;
+subplot(2,4,3); plot(x,hx(3,:), x, Jhx(3,:), x, sensor_data(2,:)); legend("hx","Jhx","z"); grid; 
+subplot(2,4,4); plot(x,hx(4,:), x, Jhx(4,:), x, sensor_data(3,:)); legend("hx","Jhx","z"); grid; 
+subplot(2,4,5); plot(x,hx(5,:), x, Jhx(5,:), x, sensor_data(4,:)); grid; legend("hx","Jhx","z");
+subplot(2,4,6); plot(x,hx(6,:), x, Jhx(6,:), x, sensor_data(5,:)); grid; legend("hx","Jhx","z");
+subplot(2,4,7); plot(x,hx(7,:), x, Jhx(7,:), x, sensor_data(6,:)); grid; legend("hx","Jhx","z");
 
 
 
-%figure;
-% subplot(2,4,1); plot(x,y(1,:), x, x_hat(1,:)); grid; xlabel("Время, с"); ylabel("q0,  рад/c"); legend("raw","filtered");
-% subplot(2,4,2); plot(x,y(2,:), x, x_hat(2,:)); grid; xlabel("Время, с"); ylabel("q1,  рад/c"); legend("raw","filtered");
-% subplot(2,4,3); plot(x,y(3,:), x, x_hat(3,:)); grid; xlabel("Время, с"); ylabel("q2,  рад/c"); legend("raw","filtered");
-% subplot(2,4,4); plot(x,y(4,:), x, x_hat(4,:)); grid; xlabel("Время, с"); ylabel("q3,  рад/c"); legend("raw","filtered");
-% subplot(2,4,5); plot(x, y(5,:)*1e3, x, x_hat(5,:)*1e3); xlabel("Время, с"); ylabel("w_x,  м рад/c"); grid; legend("raw","filtered");
-% subplot(2,4,6); plot(x, y(6,:)*1e3, x, x_hat(5,:)*1e3); xlabel("Время, с"); ylabel("w_y,  м рад/c"); grid; legend("raw","filtered");
-% subplot(2,4,7); plot(x, y(7,:)*1e3, x, x_hat(7,:)*1e3); xlabel("Время, с"); ylabel("w_z,  м рад/c"); grid; legend("raw","filtered");
-
-
+figure;
+subplot(2,4,1); plot(x,y(1,:), x, x_hat(1,:)); xlabel("Время, с"); ylabel("q0"); legend("данные","фильтр"); grid;
+subplot(2,4,2); plot(x,y(2,:), x, x_hat(2,:)); xlabel("Время, с"); ylabel("q1"); legend("данные","фильтр"); grid;
+subplot(2,4,3); plot(x,y(3,:), x, x_hat(3,:)); xlabel("Время, с"); ylabel("q2"); legend("данные","фильтр"); grid;
+subplot(2,4,4); plot(x,y(4,:), x, x_hat(4,:)); xlabel("Время, с"); ylabel("q3"); legend("данные","фильтр"); grid; 
+subplot(2,4,5); plot(x, y(5,:)*180/pi, x, x_hat(5,:)*180/pi); xlabel("Время, с"); ylabel("w_x,  градусы/c"); grid; legend("данные","фильтр");
+subplot(2,4,6); plot(x, y(6,:)*180/pi, x, x_hat(5,:)*180/pi); xlabel("Время, с"); ylabel("w_y,  градусы/c"); grid; legend("данные","фильтр");
+subplot(2,4,7); plot(x, y(7,:)*180/pi, x, x_hat(7,:)*180/pi); xlabel("Время, с"); ylabel("w_z,  градусы/c"); grid; legend("данные","фильтр");
+subplot(2,4,8); plot(x,vecnorm(x_hat(1:4,:)));legend("норма кватерниона");grid; 
 
                      
                      
