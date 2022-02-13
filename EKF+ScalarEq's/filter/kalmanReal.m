@@ -21,8 +21,7 @@ x_hat = f;
 P = JF*P*JF'+Q;
 %correction
 S = JH*P*JH'+R;
-%L = chol(S, 'lower') ;
-%Sinv = inv_chol(L);%using choletsky decomposition, 'cause answers was so close to singular matrixes 
+%answers can be close to singular matrixes 
 if det(S) ==0  
     K = zeros(m,n);
 elseif isnan(det(S))
@@ -34,7 +33,8 @@ elseif det(S)==-Inf
 else 
     K = P*JH'*inv(S)';
 end
+
 x_hat_f = x_hat+ K*(z-h);
-P = (eye(m)-K*JH)*P;
-%P = (P-P*K*JH);
+%P = (eye(m)-K*JH)*P;
+P = (P-P*K*JH);
 end

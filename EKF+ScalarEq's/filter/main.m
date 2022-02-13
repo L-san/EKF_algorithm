@@ -22,7 +22,7 @@ global satellite
        satellite.ra = [0; 0.001; 0]; % center of mass shift
        satellite.I = diag([0.01, 0.01, 0.02]);
 %%
-R = 100;
+R = 1e7;
 Q = 0;
 
 q = y(1:4,:);
@@ -38,10 +38,12 @@ Jfx = zeros(7,length(x));
 Jhx = zeros(7,length(x));
 fx = zeros(7,length(x));
 hx = zeros(7,length(x));
-P = eye(7);
+P(:,:,1) = eye(7);
 x_hat(:,1) = [q(:,1); w(:,1)];
 
-for i = 2:length(x)
+t = length(x);
+%t = 100;
+for i = 2:t
     %x_hat(:,i-1) = y(1:7,i-1);
     Ain2orb = in2orb(r(:,i-1),V(:,i-1));
     B_I = magneticField(r(:,i-1));
@@ -49,47 +51,51 @@ for i = 2:length(x)
     %
     JF = stateTransitionMatrix([x_hat(:,i-1); r(:,i-1); V(:,i-1)],dt);
     JH = observationMatrix(x_hat(:,i-1), Borb);
+    
     f = getAttitudeVector([x_hat(:,i-1); r(:,i-1); V(:,i-1)], dt);
     h = getHiddenState([x_hat(:,i-1); r(:,i-1); V(:,i-1)], Borb);
+    
     Jfx(:,i)= JF*x_hat(:,i-1);
     Jhx(:,i)= JH*x_hat(:,i-1);
     fx(:,i) = f;
     hx(:,i) = h;
+    
     z = [0; sensor_data(:,i)];
-    [x_hat(:,i), P] = kalmanReal(R, Q, z, P, JF, JH, h, f);
+    [x_hat(:,i), P(:,:,i)] = kalmanReal(R, Q, z, P(:,:,i-1), JF, JH, h, f);
 end
 
-figure;
-title("fx, Jfx");
-subplot(2,4,1); plot(x,fx(1,:), x, Jfx(1,:), x, y(1,:)); grid; legend("fx","Jfx","y");
-subplot(2,4,2); plot(x,fx(2,:), x, Jfx(2,:), x, y(2,:)); grid; legend("fx","Jfx","y");
-subplot(2,4,3); plot(x,fx(3,:), x, Jfx(3,:), x, y(3,:)); grid; legend("fx","Jfx","y");
-subplot(2,4,4); plot(x,fx(4,:), x, Jfx(4,:), x, y(4,:)); grid; legend("fx","Jfx","y");
-subplot(2,4,5); plot(x,fx(5,:), x, Jfx(5,:), x, y(5,:)); grid; legend("fx","Jfx","y");
-subplot(2,4,6); plot(x,fx(6,:), x, Jfx(6,:), x, y(6,:)); grid; legend("fx","Jfx","y");
-subplot(2,4,7); plot(x,fx(7,:), x, Jfx(7,:), x, y(7,:)); grid; legend("fx","Jfx","y");
+% figure;
+% title("fx");
+% subplot(2,4,1); plot(x(1:t),fx(1,1:t), x(1:t), y(1,1:t)); grid; legend("fx","y");
+% subplot(2,4,2); plot(x(1:t),fx(2,1:t), x(1:t), y(2,1:t)); grid; legend("fx","y");
+% subplot(2,4,3); plot(x(1:t),fx(3,1:t), x(1:t), y(3,1:t)); grid; legend("fx","y");
+% subplot(2,4,4); plot(x(1:t),fx(4,1:t), x(1:t), y(4,1:t)); grid; legend("fx","y");
+% subplot(2,4,5); plot(x(1:t),fx(5,1:t), x(1:t), y(5,1:t), x(1:t), sensor_data(4,1:t)); grid; legend("fx","y","w");
+% subplot(2,4,6); plot(x(1:t),fx(6,1:t), x(1:t), y(6,1:t), x(1:t), sensor_data(5,1:t)); grid; legend("fx","y","w");
+% subplot(2,4,7); plot(x(1:t),fx(7,1:t), x(1:t), y(7,1:t), x(1:t), sensor_data(6,1:t)); grid; legend("fx","y","w");
 
-figure;
-title("hx, Jhx, z");
-subplot(2,4,1); plot(x,hx(1,:), x, Jhx(1,:), x, zeros(1,length(sensor_data(1,:)))); legend("hx","Jhx","z"); grid; 
-subplot(2,4,2); plot(x,hx(2,:), x, Jhx(2,:), x, sensor_data(1,:)); legend("hx","Jhx","z"); grid;
-subplot(2,4,3); plot(x,hx(3,:), x, Jhx(3,:), x, sensor_data(2,:)); legend("hx","Jhx","z"); grid; 
-subplot(2,4,4); plot(x,hx(4,:), x, Jhx(4,:), x, sensor_data(3,:)); legend("hx","Jhx","z"); grid; 
-subplot(2,4,5); plot(x,hx(5,:), x, Jhx(5,:), x, sensor_data(4,:)); grid; legend("hx","Jhx","z");
-subplot(2,4,6); plot(x,hx(6,:), x, Jhx(6,:), x, sensor_data(5,:)); grid; legend("hx","Jhx","z");
-subplot(2,4,7); plot(x,hx(7,:), x, Jhx(7,:), x, sensor_data(6,:)); grid; legend("hx","Jhx","z");
+% figure;
+% title("hx, Jhx, z");
+% subplot(2,4,1); plot(x,hx(1,:), x, Jhx(1,:), x, zeros(1,length(sensor_data(1,:)))); legend("hx","Jhx","z"); grid; 
+% subplot(2,4,2); plot(x,hx(2,:), x, Jhx(2,:), x, sensor_data(1,:)); legend("hx","Jhx","z"); grid;
+% subplot(2,4,3); plot(x,hx(3,:), x, Jhx(3,:), x, sensor_data(2,:)); legend("hx","Jhx","z"); grid; 
+% subplot(2,4,4); plot(x,hx(4,:), x, Jhx(4,:), x, sensor_data(3,:)); legend("hx","Jhx","z"); grid; 
+% subplot(2,4,5); plot(x,hx(5,:), x, Jhx(5,:), x, sensor_data(4,:)); grid; legend("hx","Jhx","z");
+% subplot(2,4,6); plot(x,hx(6,:), x, Jhx(6,:), x, sensor_data(5,:)); grid; legend("hx","Jhx","z");
+% subplot(2,4,7); plot(x,hx(7,:), x, Jhx(7,:), x, sensor_data(6,:)); grid; legend("hx","Jhx","z");
+% 
 
 
+%figure;
+subplot(2,4,1); plot(x(1:t),y(1,1:t), x(1:t), x_hat(1,1:t)); xlabel("Время, с"); ylabel("q0"); legend("данные","фильтр"); grid;
+subplot(2,4,2); plot(x(1:t),y(2,1:t), x(1:t), x_hat(2,1:t)); xlabel("Время, с"); ylabel("q1"); legend("данные","фильтр"); grid;
+subplot(2,4,3); plot(x(1:t),y(3,1:t), x(1:t), x_hat(3,1:t)); xlabel("Время, с"); ylabel("q2"); legend("данные","фильтр"); grid;
+subplot(2,4,4); plot(x(1:t),y(4,1:t), x(1:t), x_hat(4,1:t)); xlabel("Время, с"); ylabel("q3"); legend("данные","фильтр"); grid; 
+subplot(2,4,5); plot(x(1:t), y(5,1:t), x(1:t), x_hat(5,1:t), x(1:t), sensor_data(4,1:t)); xlabel("Время, с"); ylabel("w_x,  градусы/c"); grid; legend("данные","фильтр","гироскоп");
+subplot(2,4,6); plot(x(1:t), y(6,1:t), x(1:t), x_hat(6,1:t), x(1:t), sensor_data(5,1:t)); xlabel("Время, с"); ylabel("w_y,  градусы/c"); grid; legend("данные","фильтр","гироскоп");
+subplot(2,4,7); plot(x(1:t), y(7,1:t), x(1:t), x_hat(7,1:t), x(1:t), sensor_data(6,1:t)); xlabel("Время, с"); ylabel("w_z,  градусы/c"); grid; legend("данные","фильтр","гироскоп");
+subplot(2,4,8); plot(x(1:t),vecnorm(x_hat(1:4,1:t)));legend("норма кватерниона");grid; 
 
-figure;
-subplot(2,4,1); plot(x,y(1,:), x, x_hat(1,:)); xlabel("Время, с"); ylabel("q0"); legend("данные","фильтр"); grid;
-subplot(2,4,2); plot(x,y(2,:), x, x_hat(2,:)); xlabel("Время, с"); ylabel("q1"); legend("данные","фильтр"); grid;
-subplot(2,4,3); plot(x,y(3,:), x, x_hat(3,:)); xlabel("Время, с"); ylabel("q2"); legend("данные","фильтр"); grid;
-subplot(2,4,4); plot(x,y(4,:), x, x_hat(4,:)); xlabel("Время, с"); ylabel("q3"); legend("данные","фильтр"); grid; 
-subplot(2,4,5); plot(x, y(5,:)*180/pi, x, x_hat(5,:)*180/pi); xlabel("Время, с"); ylabel("w_x,  градусы/c"); grid; legend("данные","фильтр");
-subplot(2,4,6); plot(x, y(6,:)*180/pi, x, x_hat(5,:)*180/pi); xlabel("Время, с"); ylabel("w_y,  градусы/c"); grid; legend("данные","фильтр");
-subplot(2,4,7); plot(x, y(7,:)*180/pi, x, x_hat(7,:)*180/pi); xlabel("Время, с"); ylabel("w_z,  градусы/c"); grid; legend("данные","фильтр");
-subplot(2,4,8); plot(x,vecnorm(x_hat(1:4,:)));legend("норма кватерниона");grid; 
 
                      
                      
