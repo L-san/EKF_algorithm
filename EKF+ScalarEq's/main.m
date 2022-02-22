@@ -27,15 +27,23 @@ statvec = kepel_statvec([orbit_vec.sma;
                          orbit_vec.raan;
                          orbit_vec.aop;
                          orbit_vec.ta]);
+
+M = [1.32955081913368,0.0208565423416162,0.0114289793418493;0.0208565423416162,1.22838488999301,-0.00295709623585174;0.0114289793418493,-0.00295709623585174,0.612564210335257];
+xshift = [1.90831820362797e-06,1.77462922157422e-06,-3.09982128810498e-06]';
+%alphaT = [0.022032687411326; -0.080079545805854; -0.004240626483571];
+alphaT = 0.02*pi/180;
+A = angle2dcm(0.01*pi/180,0.02*pi/180,0.03*pi/180);
 %integrator
-h = 1;%step
-N = 1;
+h = 0.01;%step
+N = 1/15;
 T = 2*pi*sqrt(orbit_vec.sma^3/mu);
 t = 0:h:N*T;
 x = zeros(length(t));
 y = zeros(13,length(t));
 %%initial conditions
-y0 = [1 0 0 0 0 0 0 statvec]'; x0 = 0;
+invel = [0, 0, 0.2*pi];
+q0 = 1; q = 1/2*q0*invel;
+y0 = [q0 q invel statvec]'; x0 = 0;
 y(:,1) = y0; x(1) = x0;
 %%integrating...
 %%kalmaaaan F
@@ -45,7 +53,7 @@ for i = 1:length(t)
     [a(i) b(i) c(i)] = quat2angle(y(1:4,i)','XYX');
     q_norm(i) = sqrt(y(1,i)^2+y(2,i)^2+y(3,i)^2+y(4,i)^2);
 end
-
+sigmaw = sqrt(0.05);
 for j = 1:length(y)
     V = y(11:13,j);
     r = y(8:10,j);
@@ -56,10 +64,17 @@ for j = 1:length(y)
     %B_b(:,j) = quat_mult(quat_mult(y(1:4,j),[0; Borb]),quat_conj(y(1:4,j)));
     B_b(:,j) = DCM*Borb;
 end
+mes = awgn([B_b; y(5:7,:)],151,'measured');
+B_b = mes(1:3,:);
+wb = mes(4:6,:);
+nana = mean(abs(wb(1,2:end) - y(5,2:end))./abs(y(5,2:end))*100)
+B_b = inv(M)*B_b+xshift;
+wb = inv(A)*wb+alphaT;
 
-B_b = awgn(B_b, 40,'measured');
-wb = awgn(y(5:7,:), 40,'measured');
-
+% [pitch, roll, yaw] = quat2angle(y(1:4,:)');
+% subplot(1,3,1); plot(x,pitch);
+% subplot(1,3,2); plot(x,roll);
+% subplot(1,3,3); plot(x,yaw);
 %--------------------------------------------------------------------------
 
 % figure;
@@ -79,13 +94,15 @@ wb = awgn(y(5:7,:), 40,'measured');
 % figure;
 % plot3(y(8,:),y(9,:),y(10,:)); grid;
 % 
-figure;
-subplot(1,3,1); plot(x,B_b(1,:)*1e6);xlabel("¬рем€, с"); ylabel("B_x, мк“л");grid;
-subplot(1,3,2); plot(x,B_b(2,:)*1e6);xlabel("¬рем€, с"); ylabel("B_y, мк“л");grid;
-subplot(1,3,3); plot(x,B_b(3,:)*1e6);xlabel("¬рем€, с"); ylabel("B_z, мк“л");grid;
-figure;
-subplot(1,3,1); plot(x, wb(1,:)*180/pi); xlabel("¬рем€, с"); ylabel("w_x,  градусы/c"); grid;
-subplot(1,3,2); plot(x, wb(2,:)*180/pi); xlabel("¬рем€, с"); ylabel("w_y,  градусы/c"); grid;
-subplot(1,3,3); plot(x, wb(3,:)*180/pi); xlabel("¬рем€, с"); ylabel("w_z,  градусы/c"); grid;
+
+
+% figure;
+% subplot(1,3,1); plot(x,B_b(1,:)*1e6);xlabel("¬рем€, с"); ylabel("B_x, мк“л");grid;
+% subplot(1,3,2); plot(x,B_b(2,:)*1e6);xlabel("¬рем€, с"); ylabel("B_y, мк“л");grid;
+% subplot(1,3,3); plot(x,B_b(3,:)*1e6);xlabel("¬рем€, с"); ylabel("B_z, мк“л");grid;
+% figure;
+subplot(1,3,1); plot(x, wb(1,:)*180/pi, x, y(5,:)*180/pi); xlabel("¬рем€, с"); ylabel("w_x,  градусы/c"); grid;
+subplot(1,3,2); plot(x, wb(2,:)*180/pi, x, y(6,:)*180/pi); xlabel("¬рем€, с"); ylabel("w_y,  градусы/c"); grid;
+subplot(1,3,3); plot(x, wb(3,:)*180/pi, x, y(7,:)*180/pi); xlabel("¬рем€, с"); ylabel("w_z,  градусы/c"); grid;
 
 save('data.mat','x','y','h','B_b','wb');

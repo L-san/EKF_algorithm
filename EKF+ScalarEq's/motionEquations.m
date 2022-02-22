@@ -28,9 +28,9 @@ w_orb_z = w_bz-w0_bz;
 
 %poisson's eq-s
 q_dot_0 = -0.5*(q1*w_orb_x+q2*w_orb_y+q3*w_orb_z);
-q_dot_1 = 0.5*(q0*w_orb_x+q2*w_orb_z-q3*w_orb_y);
-q_dot_2 = 0.5*(q0*w_orb_y+q3*w_orb_x-q1*w_orb_z);
-q_dot_3 = 0.5*(q0*w_orb_z+q1*w_orb_y-q2*w_orb_x);
+q_dot_1 = 0.5*(q0*w_orb_x-q2*w_orb_z+q3*w_orb_y);
+q_dot_2 = 0.5*(q0*w_orb_y-q3*w_orb_x+q1*w_orb_z);
+q_dot_3 = 0.5*(q0*w_orb_z-q1*w_orb_y+q2*w_orb_x);
 q_dot = [q_dot_0; q_dot_1; q_dot_2; q_dot_3];
 
 %external torques
