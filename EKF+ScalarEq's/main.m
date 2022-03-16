@@ -40,10 +40,10 @@ T = 2*pi*sqrt(orbit_vec.sma^3/mu);
 t = 0:h:N*T;
 x = zeros(length(t));
 y = zeros(13,length(t));
+B_b = zeros(3,length(t));
 %%initial conditions
-invel = [0, 0, 0.2*pi];
-q0 = 1; q = 1/2*q0*invel;
-y0 = [q0 q invel statvec]'; x0 = 0;
+invel = [0, 0, 0.02*pi];
+y0 = [[1 0 0 0] invel statvec]'; x0 = 0;
 y(:,1) = y0; x(1) = x0;
 %%integrating...
 %%kalmaaaan F
@@ -62,11 +62,12 @@ for j = 1:length(y)
     Borb = Ain2orb*B_I;
     DCM = quat2DCM(y(1:4,j)');
     %B_b(:,j) = quat_mult(quat_mult(y(1:4,j),[0; Borb]),quat_conj(y(1:4,j)));
+    %B_b(:,j) = quat_mult(quat_mult(y(1:4,j),[0; Borb]),quat_conj(y(1:4,j)));
     B_b(:,j) = DCM*Borb;
 end
-mes = awgn([B_b; y(5:7,:)],151,'measured');
-B_b = mes(1:3,:);
-wb = mes(4:6,:);
+
+B_b = B_b.*(1+0.05*rand(3,length(B_b)));
+wb = y(5:7,:).*(1+0.05*rand(3,length(y(5:7,:))));
 nana = mean(abs(wb(1,2:end) - y(5,2:end))./abs(y(5,2:end))*100)
 B_b = inv(M)*B_b+xshift;
 wb = inv(A)*wb+alphaT;

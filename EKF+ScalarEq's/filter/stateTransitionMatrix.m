@@ -1,6 +1,6 @@
 function Jf = stateTransitionMatrix(attitude,dt)
-global satellite orbit_vec
-q0 = getQ0(attitude(1:3)); q1 = attitude(1); q2 = attitude(2); q3 = attitude(3);
+global satellite orbit_vec q0
+q1 = attitude(1); q2 = attitude(2); q3 = attitude(3);
 wbx = attitude(4); wby = attitude(5); wbz = attitude(6);
 I = satellite.I;
 
@@ -14,100 +14,73 @@ ka =  -0.5*ro* satellite.c0* satellite.Sm*Vn^2;
 w0y = orbit_vec.w0;
 w0 = orbit_vec.w0;
 Ix = I(1,1); Iy = I(2,2); Iz = I(3,3);
+
 kx=(Iy-Iz)/Ix;
 ky=(Iz-Ix)/Iy;
 kz=(Ix-Iy)/Iz;
 
-dqdot1dq1=1+q0*q2*w0y;
-dqdot1dq2=q1*q2*w0y-wbx/2;
-dqdot1dq3=1/2*(q0^2*w0y+q1^2*w0y+3*q2^2*w0y+q3^2*w0y-wby);
-dqdot1dq4=q2*q3*w0y-wbz/2;
-dqdot1dwbx=-(q1/2);
-dqdot1dwby=-(q2/2);
-dqdot1dwbz=-(q3/2);
+dq1dq1=-2*q0*q2*w0y+q1*q3*w0y;
+dq1dq2=-2*q0*q1*w0y+q2*q3*w0y-wbz/2;
+dq1dq3=1/2*(-3*q0^2*w0y+q1^2*w0y+q2^2*w0y+3*q3^2*w0y+wby);
+dq1dw1=q0/2;
+dq1dw2=q3/2;
+dq1dw3=-(q2/2);
 
-dqdot2dq1=1/2*(-4*q1*q2*w0y-6*q0*q3*w0y+wbx);
-dqdot2dq2=1-2*q0*q2*w0y+q1*q3*w0y;
-dqdot2dq3=-2*q0*q1*w0y+q2*q3*w0y-wbz/2;
-dqdot2dq4=1/2*(-3*q0^2*w0y+q1^2*w0y+q2^2*w0y+3*q3^2*w0y+wby);
-dqdot2dwbx=q0/2;
-dqdot2dwby=q3/2;
-dqdot2dwbz=-(q2/2);
+dq2dq1=1/2*(6*q0*q1*w0y+wbz);
+dq2dq2=-q0*q2*w0y;
+dq2dq3=3*q0*q3*w0y-wbx/2;
+dq2dw1=-(q3/2);
+dq2dw2=q0/2;
+dq2dw3=q1/2;
 
-dqdot3dq1=1/2*(-3*q0^2*w0y+3*q1^2*w0y-q2^2*w0y+3*q3^2*w0y+wby);
-dqdot3dq2=1/2*(6*q0*q1*w0y+wbz);
-dqdot3dq3=1-q0*q2*w0y;
-dqdot3dq4=3*q0*q3*w0y-wbx/2;
-dqdot3dwbx=-(q3/2);
-dqdot3dwby=q0/2;
-dqdot3dwbz=q1/2;
+dq3dq1=1/2*(3*q0^2*w0y-3*q1^2*w0y-q2^2*w0y-q3^2*w0y-wby);
+dq3dq2=1/2*(-2*q1*q2*w0y-4*q0*q3*w0y+wbx);
+dq3dq3=-((2*q0*q2+q1*q3)*w0y);
+dq3dw1=q2/2;
+dq3dw2=-(q1/2);
+dq3dw3=q0/2;
 
-dqdot4dq1=1/2*(6*q0*q1*w0y-4*q2*q3*w0y+wbz);
-dqdot4dq2=1/2*(3*q0^2*w0y-3*q1^2*w0y-q2^2*w0y-q3^2*w0y-wby);
-dqdot4dq3=1/2*(-2*q1*q2*w0y-4*q0*q3*w0y+wbx);
-dqdot4dq4=1-2*q0*q2*w0y-q1*q3*w0y;
-dqdot4dwbx=q2/2;
-dqdot4dwby=-(q1/2);
-dqdot4dwbz=q0/2;
+dwxdq1=-6*kx*(q0^3-2*q1*q2*q3+q0*(-3*q1^2-q2^2+q3^2))*w0^2-(2*ka*(-q3*Vx*y+q0*Vy*y+q1*Vz*y+q2*Vx*z-q1*Vy*z+q0*Vz*z))/(Ix*Vn);
+dwxdq2=-6*kx*(-2*q0*q1*q2+q0^2*q3-q1^2*q3-3*q2^2*q3+q3^3)*w0^2-(2*ka*(-q0*Vx*y-q3*Vy*y+q2*Vz*y+q1*Vx*z+q2*Vy*z+q3*Vz*z))/(Ix*Vn);
+dwxdq3=-6*kx*(q0^2*q2+2*q0*q1*q3-q2*(q1^2+q2^2-3*q3^2))*w0^2+(2*ka*(q1*Vx*y+q2*Vy*y+q3*Vz*y+q0*Vx*z+q3*Vy*z-q2*Vz*z))/(Ix*Vn);
+dwxdw1=0;
+dwxdw2=kx*wbz;
+dwxdw3=kx*wby;
 
-dwbxdq1=-6*dt*kx*(3*q0^2*q1+2*q0*q2*q3-q1*(q1^2+q2^2-q3^2))*w0^2+(2*dt*ka*(q2*Vx*y+q0*Vz*y+q3*Vx*z-q0*Vy*z-q1*(Vy*y+Vz*z)))/(Ix*Vn);
-dwbxdq2=-6*dt*kx*(q0^3-2*q1*q2*q3+q0*(-3*q1^2-q2^2+q3^2))*w0^2-(2*dt*ka*(-q3*Vx*y+q0*Vy*y+q1*Vz*y+q2*Vx*z-q1*Vy*z+q0*Vz*z))/(Ix*Vn);
-dwbxdq3=-6*dt*kx*(-2*q0*q1*q2+q0^2*q3-q1^2*q3-3*q2^2*q3+q3^3)*w0^2-(2*dt*ka*(-q0*Vx*y-q3*Vy*y+q2*Vz*y+q1*Vx*z+q2*Vy*z+q3*Vz*z))/(Ix*Vn);
-dwbxdq4=-6*dt*kx*(q0^2*q2+2*q0*q1*q3-q2*(q1^2+q2^2-3*q3^2))*w0^2+(2*dt*ka*(q1*Vx*y+q2*Vy*y+q3*Vz*y+q0*Vx*z+q3*Vy*z-q2*Vz*z))/(Ix*Vn);
-dwbxdwbx=1;
-dwbxdwby=dt*kx*wbz;
-dwbxdwbz=dt*kx*wby;
+dwydq1=-6*ky*(2*q0*q1*q2+q0^2*q3-3*q1^2*q3-q2^2*q3+q3^3)*w0^2-(2*ka*(q1*Vx+q2*Vy+q3*Vz)*(x-z))/(Iy*Vn);
+dwydq2=6*ky*(q0^3+2*q1*q2*q3+q0*(-q1^2-3*q2^2+q3^2))*w0^2+(2*ka*(q2*Vx-q1*Vy+q0*Vz)*(x-z))/(Iy*Vn);
+dwydq3=-6*ky*(q0^2*q1-2*q0*q2*q3-q1*(q1^2+q2^2-3*q3^2))*w0^2+(2*ka*(q3*Vx-q0*Vy-q1*Vz)*(x-z))/(Iy*Vn);
+dwydw1=ky*wbz;
+dwydw2=0;
+dwydw3=ky*wbx;
 
-dwbydq1=6*dt*ky*(3*q0^2*q2-2*q0*q1*q3-q2*(q1^2+q2^2-q3^2))*w0^2-(2*dt*ka*(q0*Vx+q3*Vy-q2*Vz)*(x-z))/(Iy*Vn);
-dwbydq2=-6*dt*ky*(2*q0*q1*q2+q0^2*q3-3*q1^2*q3-q2^2*q3+q3^3)*w0^2-(2*dt*ka*(q1*Vx+q2*Vy+q3*Vz)*(x-z))/(Iy*Vn);
-dwbydq3=6*dt*ky*(q0^3+2*q1*q2*q3+q0*(-q1^2-3*q2^2+q3^2))*w0^2+(2*dt*ka*(q2*Vx-q1*Vy+q0*Vz)*(x-z))/(Iy*Vn);
-dwbydq4=-6*dt*ky*(q0^2*q1-2*q0*q2*q3-q1*(q1^2+q2^2-3*q3^2))*w0^2+(2*dt*ka*(q3*Vx-q0*Vy-q1*Vz)*(x-z))/(Iy*Vn);
-dwbydwbx=dt*ky*wbz;
-dwbydwby=1;
-dwbydwbz=dt*ky*wbx;
+dwzdq1=12*kz*(q0^2*q2-2*q0*q1*q3-q2*q3^2)*w0^2+(2*ka*(q2*Vx*x-q1*Vy*x+q0*Vz*x-q1*Vx*y-q2*Vy*y-q3*Vz*y))/(Iz*Vn);
+dwzdq2=12*kz*(q0^2*q1+2*q0*q2*q3-q1*q3^2)*w0^2+(2*ka*(q1*Vx*x+q2*Vy*x+q3*Vz*x+q2*Vx*y-q1*Vy*y+q0*Vz*y))/(Iz*Vn);
+dwzdq3=-12*kz*(q0*(q1^2-q2^2)+2*q1*q2*q3)*w0^2-(2*ka*(q0*Vx*x+q3*Vy*x-q2*Vz*x-q3*Vx*y+q0*Vy*y+q1*Vz*y))/(Iz*Vn);
+dwzdw1=kz*wby;
+dwzdw2=kz*wbx;
+dwzdw3=0;
 
-dwbzdq1=2*dt*(6*kz*(2*q0*q1*q2+(-q1^2+q2^2)*q3)*w0^2+(ka*(q0*Vy*x+q1*Vz*x-q0*Vx*y+q2*Vz*y-q3*(Vx*x+Vy*y)))/(Iz*Vn));
-dwbzdq2=2*dt*(6*kz*(q0^2*q2-2*q0*q1*q3-q2*q3^2)*w0^2+(ka*(q2*Vx*x-q1*Vy*x+q0*Vz*x-q1*Vx*y-q2*Vy*y-q3*Vz*y))/(Iz*Vn));
-dwbzdq3=2*dt*(6*kz*(q0^2*q1+2*q0*q2*q3-q1*q3^2)*w0^2+(ka*(q1*Vx*x+q2*Vy*x+q3*Vz*x+q2*Vx*y-q1*Vy*y+q0*Vz*y))/(Iz*Vn));
-dwbzdq4=-(1/(Iz*Vn))*2*dt*(6*Iz*kz*(q0*(q1^2-q2^2)+2*q1*q2*q3)*Vn*w0^2+ka*(q0*Vx*x+q3*Vy*x-q2*Vz*x-q3*Vx*y+q0*Vy*y+q1*Vz*y));
-dwbzdwbx=dt*kz*wby;
-dwbzdwby=dt*kz*wbx;
-dwbzdwbz=1;
+dqdq = [dq1dq1 dq1dq2 dq1dq3;
+	dq2dq1 dq2dq2 dq2dq3;
+	dq3dq1 dq3dq2 dq3dq3];
 
-% dqdq = [dqdot1dq1 dqdot1dq2 dqdot1dq3 dqdot1dq4;
-%         dqdot2dq1 dqdot2dq2 dqdot2dq3 dqdot2dq4;
-%         dqdot3dq1 dqdot3dq2 dqdot3dq3 dqdot3dq4
-%         dqdot4dq1 dqdot4dq2 dqdot4dq3 dqdot4dq4];
-% 
-% dqdw = [dqdot1dwbx dqdot1dwby dqdot1dwbz;
-%         dqdot2dwbx dqdot2dwby dqdot2dwbz;
-%         dqdot3dwbx dqdot3dwby dqdot3dwbz;
-%         dqdot4dwbx dqdot4dwby dqdot4dwbz];
-% 
-% dwdq = [dwbxdq1 dwbxdq2 dwbxdq3 dwbxdq4;
-%         dwbydq1 dwbydq2 dwbydq3 dwbydq4;
-%         dwbzdq1 dwbzdq2 dwbzdq3 dwbzdq4];
-% 
-% dwdw = [dwbxdwbx dwbxdwby dwbxdwbz;
-%         dwbydwbx dwbydwby dwbydwbz;
-%         dwbzdwbx dwbzdwby dwbzdwbz];
+dqdw = [dq1dw1 dq1dw2 dq1dw3;
+	dq2dw1 dq2dw2 dq2dw3;
+	dq3dw1 dq3dw2 dq3dw3];
 
-dqdq = [dqdot2dq2 dqdot2dq3 dqdot2dq4;
-        dqdot3dq2 dqdot3dq3 dqdot3dq4
-        dqdot4dq2 dqdot4dq3 dqdot4dq4];
+dwdq = [dwxdq1 dwxdq2 dwxdq3;
+	dwydq1 dwydq2 dwydq3;
+	dwzdq1 dwzdq2 dwzdq3];
 
-dqdw = [dqdot2dwbx dqdot2dwby dqdot2dwbz;
-        dqdot3dwbx dqdot3dwby dqdot3dwbz;
-        dqdot4dwbx dqdot4dwby dqdot4dwbz];
+dwdw = [dwxdw1 dwxdw2 dwxdw3;
+	dwydw1 dwydw2 dwydw3;
+	dwzdw1 dwzdw2 dwzdw3];
 
-dwdq = [dwbxdq2 dwbxdq3 dwbxdq4;
-        dwbydq2 dwbydq3 dwbydq4;
-        dwbzdq2 dwbzdq3 dwbzdq4];
 
-dwdw = [dwbxdwbx dwbxdwby dwbxdwbz;
-        dwbydwbx dwbydwby dwbydwbz;
-        dwbzdwbx dwbzdwby dwbzdwbz];
-
-Jf = [dqdq dqdw;
-     dwdq dwdw];
+Jf_hat = [dqdq dqdw;
+          dwdq dwdw];
+  
+Jf = eye(6,6)+Jf_hat*dt;
+%Jf = Jf_hat*dt;
 end

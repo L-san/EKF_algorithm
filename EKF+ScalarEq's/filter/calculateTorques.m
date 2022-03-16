@@ -1,6 +1,5 @@
 function [M] = calculateTorques(attitude)
-global orbit_vec satellite
-q0 = getQ0(attitude(1:3));
+global orbit_vec satellite q0
 Ix = satellite.I(1,1); Iy = satellite.I(2,2); Iz = satellite.I(3,3);
 %dcm
  Aorb2b = quat2DCM([q0; attitude(1:3)]');
