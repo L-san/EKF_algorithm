@@ -1,21 +1,36 @@
-function [errN, err] = errcalc(x,y)
+function [errN, err] = errcalc(x,y) %y - true %x - calc
 n = height(x);
 m = length(x);
+
+%err = zeros(n,m);
+% % 
+% % Fy = 2*acos(sqrt(1-sum(y(1:3,:).^2)));
+% % Fx = 2*acos(sqrt(1-sum(x(1:3,:).^2)));
+% 
+% err(1,:) = abs(Fx-Fy);
+% 
+% 
+% if(~isnan(x))
+%     for i = 1:n
+%         for j = 1:m
+%             err(i,j) = abs(y(i,j)-x(i,j));
+%         end
+%     end
+%     errN = median(err')*180/pi;
+% else
+%     errN = ones(n,1)*NaN;
+% end
+% end
+
 err = zeros(n,m);
 if(~isnan(x))
     for i = 1:n
         for j = 1:m
-            err(i,j) = abs(1-x(i,j)/y(i+1,j))*100;
-            if(isnan(err(i,j))||isinf(err(i,j)))
-                err(i,j) = abs(x(i,j));
-            end
-            if(err(i,j)>100)
-                err(i,j) = err(i,j-1);
-            end
+            err(i,j) = abs(y(i,j)-x(i,j));
         end
     end
+    errN = median(err');
 else
-    errN = NaN;
+    errN = ones(n,1)*NaN;
 end
-errN = median(err');
 end

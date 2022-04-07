@@ -1,8 +1,8 @@
 function [M] = calculateTorques(attitude)
-global orbit_vec satellite q0
+global orbit_vec satellite
 Ix = satellite.I(1,1); Iy = satellite.I(2,2); Iz = satellite.I(3,3);
 %dcm
- Aorb2b = quat2DCM([q0; attitude(1:3)]');
+ Aorb2b = quat2DCM([attitude(1:4)]');
  Aorb2b11 = Aorb2b(1,1);
  Aorb2b12 = Aorb2b(1,2);
  Aorb2b13 = Aorb2b(1,3);
@@ -14,9 +14,10 @@ Ix = satellite.I(1,1); Iy = satellite.I(2,2); Iz = satellite.I(3,3);
  Aorb2b33 = Aorb2b(3,3);
 %%
 %aerodynamics
-r = attitude(7:9);
-V = attitude(10:12);
-ro = Density(norm(r)-orbit_vec.Re);
+r = attitude(8:10);
+V = attitude(11:13);
+ht = abs(norm(r)-orbit_vec.Re);
+ro = Density(ht);
 Vx = V(1); Vy = V(2); Vz = V(3);
 x = satellite.ra(1); y = satellite.ra(2); z = satellite.ra(3);
 Vn = sqrt(Vx^2+Vy^2+Vz^2);

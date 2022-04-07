@@ -1,12 +1,11 @@
 %orbit_vec = [sma ecc inc raan aop ta w0]; %orbital elements vector
 function attitudeVector = motionEquations(attitude)
-global orbit_vec satellite q0
-
+global orbit_vec satellite
 %quaternion and angular velocity in the body system
-w_b = attitude(4:6);
-q = [q0; attitude(1:3)];
-r = attitude(7:9);
-V = attitude(10:12);
+w_b = attitude(5:7);
+q = [attitude(1:4)];
+r = attitude(8:10);
+V = attitude(11:13);
 w0 = orbit_vec.w0;
 %dcm
 Aorb2b = quat2DCM(q');

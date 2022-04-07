@@ -33,9 +33,13 @@ e_Bx =  Aorb2b13; e_By =  Aorb2b23; e_Bz =  Aorb2b33;
 Mgx = 3*orbit_vec.w0^2*(Iz-Iy)*e_By*e_Bz;
 Mgy = 3*orbit_vec.w0^2*(Ix-Iz)*e_Bx*e_Bz;
 Mgz = 3*orbit_vec.w0^2*(Iy-Ix)*e_By*e_Bx;
+
+Msr = -9.08e-6*0.1*satellite.Sm*cross(satellite.ra,angle2dcm(pi/4,pi/4,pi/4)*[1;0;0]);
+
 %%all moments
 Mx = Max+Mgx;
 My = May+Mgy;
 Mz = Maz+Mgz;
 M = [Mx; My; Mz];
+M = Msr+M;
 end

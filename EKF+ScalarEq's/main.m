@@ -1,4 +1,5 @@
-clear variables; clc;
+function kl = main(filename)
+%clear variables; clc;
 global mu
         mu = 398600e+9; %gravitational constant
 %%
@@ -28,17 +29,21 @@ statvec = kepel_statvec([orbit_vec.sma;
                          orbit_vec.aop;
                          orbit_vec.ta]);
 
+SNR = 20*log10(1/0.05);
+SNR_GNSS = 20*log10(orbit_vec.sma/10);
+
 M = [1.32955081913368,0.0208565423416162,0.0114289793418493;0.0208565423416162,1.22838488999301,-0.00295709623585174;0.0114289793418493,-0.00295709623585174,0.612564210335257];
 xshift = [1.90831820362797e-06,1.77462922157422e-06,-3.09982128810498e-06]';
 %alphaT = [0.022032687411326; -0.080079545805854; -0.004240626483571];
-alphaT = 0.02*pi/180;
+alphaT = [0.02*pi/180; 0.02*pi/180; 0.02*pi/180];
 A = angle2dcm(0.01*pi/180,0.02*pi/180,0.03*pi/180);
 %integrator
 h = 0.01;%step
-N = 1/15;
+N = 1/5;
 T = 2*pi*sqrt(orbit_vec.sma^3/mu);
+%T = 200;
 t = 0:h:N*T;
-x = zeros(length(t));
+x = zeros(1,length(t));
 y = zeros(13,length(t));
 B_b = zeros(3,length(t));
 %%initial conditions
@@ -46,14 +51,8 @@ invel = [0, 0, 0.02*pi];
 y0 = [[1 0 0 0] invel statvec]'; x0 = 0;
 y(:,1) = y0; x(1) = x0;
 %%integrating...
-%%kalmaaaan F
-
 [x,y] = ode4(@motionEquations,h,[0,N*T],[x0;y0]);
-for i = 1:length(t)
-    [a(i) b(i) c(i)] = quat2angle(y(1:4,i)','XYX');
-    q_norm(i) = sqrt(y(1,i)^2+y(2,i)^2+y(3,i)^2+y(4,i)^2);
-end
-sigmaw = sqrt(0.05);
+
 for j = 1:length(y)
     V = y(11:13,j);
     r = y(8:10,j);
@@ -66,11 +65,54 @@ for j = 1:length(y)
     B_b(:,j) = DCM*Borb;
 end
 
-B_b = B_b.*(1+0.05*rand(3,length(B_b)));
-wb = y(5:7,:).*(1+0.05*rand(3,length(y(5:7,:))));
-nana = mean(abs(wb(1,2:end) - y(5,2:end))./abs(y(5,2:end))*100)
-B_b = inv(M)*B_b+xshift;
-wb = inv(A)*wb+alphaT;
+
+MX = 0.05;
+DX = 0.05^2;
+
+B_b = inv(M)*(B_b)+xshift;
+wb = inv(A)*(y(5:7,:))+alphaT;
+
+dt = 0.01;
+B_b1 = B_b;
+wb1 = y(5:7,:);
+% bx = normrnd(MX*mean(B_b(1,:)),DX*mean(B_b(1,:)),[1,length(t)]);
+% by = normrnd(MX*mean(B_b(2,:)),DX*mean(B_b(2,:)),[1,length(t)]);
+% bz = normrnd(MX*mean(B_b(3,:)),DX*mean(B_b(3,:)),[1,length(t)]);
+% B_b = B_b+[bx;by;bz];% awgn(B_b,30,'measured');
+% 
+% wx = normrnd(MX*mean(wb(1,:)),DX*mean(wb(1,:)),[1,length(t)]);
+% wy = normrnd(MX*mean(wb(2,:)),DX*mean(wb(2,:)),[1,length(t)]);
+% wz = normrnd(MX*mean(wb(3,:)),DX*mean(wb(3,:)),[1,length(t)]);
+% wb = wb+[wx; wy; wz]; %awgn(wb,30,'measured');
+% %%
+% r1 = y(8:10,:);
+% r2 = y(11:13,:);
+% yx = normrnd(MX*mean(y(8,:)),DX*mean(y(8,:)),[1,length(t)]);
+% yy = normrnd(MX*mean(y(9,:)),DX*mean(y(9,:)),[1,length(t)]);
+% yz = normrnd(MX*mean(y(10,:)),DX*mean(y(10,:)),[1,length(t)]);
+% y(8:10,:) = y(8:10,:)+[yz; yy; yz]; %awgn(y(8:10,:),50,'measured');
+% 
+% vx = normrnd(MX*mean(y(11,:)),DX*mean(y(11,:)),[1,length(t)]);
+% vy = normrnd(MX*mean(y(12,:)),DX*mean(y(12,:)),[1,length(t)]);
+% vz = normrnd(MX*mean(y(13,:)),DX*mean(y(13,:)),[1,length(t)]);
+% y(11:13,:) = y(11:13,:)+[vx; vy; vz]; %awgn(y(11:13,:),50,'measured');
+y1 = y(8:10,:);
+y2 = y(11:13,:);
+B_b = awgn(B_b,SNR,'measured');
+wb = awgn(wb,SNR,'measured');
+y(8:10,:) = awgn(y(8:10,:),SNR_GNSS,'measured');
+y(11:13,:) = awgn(y(11:13,:),SNR_GNSS,'measured');
+%%
+qw1 = wb1/norm(wb1).*sin(norm(wb1)/2*dt);
+qw = wb/norm(wb).*sin(norm(wb)/2*dt);
+
+varb = var((B_b-B_b1)');
+varw = var((wb-wb1)');
+varq = var((qw-qw1)');
+
+meanb = mean((B_b-B_b1)');
+meanw = mean((wb-wb1)');
+meanq = mean((qw-qw1)');
 
 % [pitch, roll, yaw] = quat2angle(y(1:4,:)');
 % subplot(1,3,1); plot(x,pitch);
@@ -97,13 +139,19 @@ wb = inv(A)*wb+alphaT;
 % 
 
 
-% figure;
-% subplot(1,3,1); plot(x,B_b(1,:)*1e6);xlabel("¬рем€, с"); ylabel("B_x, мк“л");grid;
-% subplot(1,3,2); plot(x,B_b(2,:)*1e6);xlabel("¬рем€, с"); ylabel("B_y, мк“л");grid;
-% subplot(1,3,3); plot(x,B_b(3,:)*1e6);xlabel("¬рем€, с"); ylabel("B_z, мк“л");grid;
-% figure;
-subplot(1,3,1); plot(x, wb(1,:)*180/pi, x, y(5,:)*180/pi); xlabel("¬рем€, с"); ylabel("w_x,  градусы/c"); grid;
-subplot(1,3,2); plot(x, wb(2,:)*180/pi, x, y(6,:)*180/pi); xlabel("¬рем€, с"); ylabel("w_y,  градусы/c"); grid;
-subplot(1,3,3); plot(x, wb(3,:)*180/pi, x, y(7,:)*180/pi); xlabel("¬рем€, с"); ylabel("w_z,  градусы/c"); grid;
-
-save('data.mat','x','y','h','B_b','wb');
+figure;
+subplot(4,3,1); plot(x,B_b(1,:)*1e6);xlabel("¬рем€, с"); ylabel("B_x, мк“л");grid;
+subplot(4,3,2); plot(x,B_b(2,:)*1e6);xlabel("¬рем€, с"); ylabel("B_y, мк“л");grid;
+subplot(4,3,3); plot(x,B_b(3,:)*1e6);xlabel("¬рем€, с"); ylabel("B_z, мк“л");grid;
+subplot(4,3,4); plot(x, wb(1,:)*180/pi, x, y(5,:)*180/pi); xlabel("¬рем€, с"); ylabel("w_x,  градусы/c"); grid;
+subplot(4,3,5); plot(x, wb(2,:)*180/pi, x, y(6,:)*180/pi); xlabel("¬рем€, с"); ylabel("w_y,  градусы/c"); grid;
+subplot(4,3,6); plot(x, wb(3,:)*180/pi, x, y(7,:)*180/pi); xlabel("¬рем€, с"); ylabel("w_z,  градусы/c"); grid;
+subplot(4,3,7); plot(x, y(8,:), x, y1(1,:));
+subplot(4,3,8); plot(x, y(9,:), x, y1(2,:));
+subplot(4,3,9); plot(x, y(10,:), x, y1(3,:));
+subplot(4,3,10); plot(x, y(11,:), x, y2(1,:));
+subplot(4,3,11); plot(x, y(12,:), x,  y2(2,:));
+subplot(4,3,12); plot(x, y(13,:), x, y2(3,:));
+save(filename,'x','y','h','B_b','wb','varb','varw','varq','meanb','meanw','meanq');
+kl = 0;
+end
